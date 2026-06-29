@@ -1,29 +1,34 @@
-import twitchio
-from twitchio import Client
-import asyncio
-import config  # On utilise ton config pour récupérer les identifiants
+from twitchio.ext import commands
+import config
 
-class TestBot(Client):
+class TestBot(commands.Bot):
     def __init__(self):
         super().__init__(
             token=config.Config.BOT_OAUTH,
             client_secret=config.Config.CLIENT_SECRET,
-            client_id=config.Config.CLIENT_ID,
-            nick=config.Config.BOT_NICK,
             prefix='!',
             initial_channels=[config.Config.CHANNEL]
         )
 
     async def event_ready(self):
-        print(f"✅ {config.Config.BOT_NICK} est connecté et prêt !")
+        print(f"✅ Connecté et prêt !")
+        print(f"User id is | {self.nick}")
+        print(f"📡 Surveille le chat de : {config.Config.CHANNEL}")
 
     async def event_message(self, message):
-        # Ce bout de code s'exécute pour CHAQUE message dans le chat
+        # Les messages envoyés par le bot lui-même ont echo=True, on les ignore
+        if message.echo:
+            return
+
         print(f"📨 MESSAGE BRUT : {message.author.name} -> {message.content}")
 
-        # Si quelqu'un tape !ping, le bot répond !pong
-        if message.content.startswith('!ping'):
-            await message.channel.send('!pong')
+        # Comme on override event_message, on doit appeler ça nous-mêmes
+        # pour que les commandes (comme !ping) fonctionnent toujours
+        await self.handle_commands(message)
+
+    @commands.command()
+    async def ping(self, ctx: commands.Context):
+        await ctx.send('!pong')
 
 if __name__ == "__main__":
     bot = TestBot()
