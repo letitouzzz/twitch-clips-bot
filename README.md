@@ -18,11 +18,41 @@ cd twitch-clips-bot
 
 ### 2. Installer les dépendances Python
 
+#### a) Le cœur du bot (obligatoire)
+
 ```bash
-pip install "twitchio<3.0" requests python-dotenv
+pip install "twitchio<3.0" python-dotenv requests
 ```
 
-> ⚠️ **Important** : ce projet utilise **TwitchIO 2.x**, pas la version 3.x. La v3 a changé son fonctionnement interne (système EventSub avec abonnements explicites au lieu de la réception automatique des messages IRC), ce qui casse le code de ce bot. Vérifie ta version avec `pip show twitchio` — si elle affiche `3.x.x`, réinstalle avec la commande ci-dessus.
+| Bibliothèque | Utilité |
+|---|---|
+| `twitchio` | Connexion au chat Twitch (IRC) et appels API |
+| `python-dotenv` | Charger les variables du fichier `.env` (Client ID, tokens, etc.) |
+| `requests` | Appels HTTP à l'API Twitch (créer des clips, récupérer des infos) |
+
+> ⚠️ **Important** : ce projet utilise **TwitchIO 2.x**, pas la version 3.x. La v3 a changé son fonctionnement interne (système EventSub avec abonnements explicites au lieu de la réception automatique des messages IRC), ce qui casse le code de ce bot. **Ne fais jamais `pip install twitchio` seul** — ça installera la dernière version (3.x) par défaut. Vérifie ta version avec `pip show twitchio` — si elle affiche `3.x.x`, réinstalle avec la commande ci-dessus.
+
+#### b) Téléchargement des clips (étape 2 — montage)
+
+```bash
+pip install yt-dlp
+```
+
+| Bibliothèque | Utilité |
+|---|---|
+| `yt-dlp` | Télécharger les clips Twitch depuis leur URL (`clips.twitch.tv/{clip_id}`) |
+
+#### c) Analyse VOD / transcription (étape future — optionnel)
+
+```bash
+pip install openai-whisper
+```
+
+| Bibliothèque | Utilité |
+|---|---|
+| `openai-whisper` | Transcrire l'audio des VODs en texte, pour détecter des mots-clés (utilisé par le futur module `twitch-clip-miner`) |
+
+> Cette dépendance n'est pas nécessaire pour faire fonctionner le bot de détection de hype actuel — elle sert uniquement à une fonctionnalité d'analyse VOD pas encore implémentée. Installe-la seulement si tu travailles sur cette partie.
 
 ### 3. Créer une application Twitch
 
@@ -152,8 +182,8 @@ Les deux utilisent le même token de base, juste formaté différemment selon le
 
 ## 🚧 Roadmap (prochaines étapes)
 
-- [ ] Téléchargement automatique des clips créés (`yt-dlp`)
+- [ ] Téléchargement automatique des clips créés (`yt-dlp` — déjà installé, à intégrer dans le flux)
 - [ ] Envoi automatique vers un salon Discord privé
 - [ ] Module de montage automatique : découpe des silences (MoviePy/Pydub)
 - [ ] Smart Crop 16:9 → 9:16 pour format TikTok/Shorts (MediaPipe/OpenCV)
-- [ ] Transcription automatique (Whisper.cpp)
+- [ ] Transcription et analyse de VOD pour `twitch-clip-miner` (`openai-whisper` — déjà installé, à intégrer)
